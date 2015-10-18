@@ -1,0 +1,26 @@
+{
+  "name": "tflt",
+  "version": "1.0.0",
+  "description": "This Feels Like That will find common reasons for why someone would think a movie A feels like movie B",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Reetesh/TFLT.git"
+  },
+  "keywords": [
+    "movie",
+    "feels"
+  ],
+  "author": "reetesh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Reetesh/TFLT/issues"
+  },
+  "homepage": "https://github.com/Reetesh/TFLT#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
