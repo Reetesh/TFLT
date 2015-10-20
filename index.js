@@ -5,7 +5,7 @@ var app = express();
 
 var mdb = require('moviedb')(config.apiKey);
 
-var server = app.listen(3000, function () {
+var server = app.listen(3000, config.appHost,  function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
