@@ -42,6 +42,7 @@ function getCommonCredits( credits_a, credits_b, callback){
 
 	var ret = [];
 	var hash = new Object();
+	var names = [];
 	for( idx in  credits_a['cast'] ) {
 		hash[credits_a['cast'][idx]['name']] = 1;
 	}
@@ -61,17 +62,13 @@ function getCommonCredits( credits_a, credits_b, callback){
 		}
 	}
 	for( var key in hash) {
-		if( hash[key] < 2 ) {
-			delete hash[key];
+		if( hash[key] > 1 ) {
+			names.push( { "name" : key } ) ;
 		}
 	}
-
-	callback( hash );
+	callback( names );
 }
 
-app.get('/', function (req, res) {
-	res.send('Go To URL: /movie_a/feelslike/movie_b');
-});
 
 app.get('/:movie_a/feelslike/:movie_b', function(req, res) {
 
@@ -79,3 +76,4 @@ app.get('/:movie_a/feelslike/:movie_b', function(req, res) {
 		res.send(feels);
 	});
 });
+app.use(express.static('public'));

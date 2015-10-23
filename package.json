@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/Reetesh/TFLT#readme",
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   }
 }
