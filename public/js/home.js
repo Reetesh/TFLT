@@ -16,7 +16,7 @@ var MainBox = React.createClass({
 		});
 	},
 	getInitialState: function getInitialState() {
-		return { data: [] };
+		return { data: { "credits": [] } };
 	},
 	render: function render() {
 		return React.createElement(
@@ -74,11 +74,24 @@ var ResultBox = React.createClass({
 	displayName: "ResultBox",
 
 	render: function render() {
-		var resultRows = this.props.data.map(function (person, index) {
+		var resultRows = this.props.data['credits'].map(function (person, index) {
 			return React.createElement(
 				"div",
-				null,
-				person.name
+				{ key: index },
+				React.createElement(
+					"h2",
+					null,
+					person["name"]
+				),
+				React.createElement(
+					"div",
+					null,
+					person["credits_a"]["role"],
+					" ",
+					",",
+					" ",
+					person["credits_b"]["role"]
+				)
 			);
 		});
 		return React.createElement(
