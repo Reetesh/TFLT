@@ -1,2 +1,2 @@
-exports.apiKey = ''; //Ask @reetesh for a test key or get API Key from TMBD.org
+exports.apiKey = 'a9f0f28777720686b491783c91ed4db8';
 exports.appHost='localhost';

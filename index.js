@@ -15,10 +15,20 @@ var server = app.listen(3000, config.appHost,  function () {
 function getCredits(movie_name, callback) {
 	mdb.searchMovie({query: movie_name}, function(err, res) {
 		//assuming that the top result of API is what we want.
-		movie = res['results'][0];
-		mdb.movieCredits({id: movie['id']}, function(err, res) {
-			callback(res);
-		});
+		if( res ) {
+			movie = res['results'][0];
+			mdb.movieCredits({id: movie['id']}, function(err, res) {
+				callback(res);
+			});
+		}
+		else { //TV
+			mdb.searchTV({query: movie_name}, function(err, res) {
+				tv = res['results'][0];
+				mdb.tvCredits({id: tv['id']}, function(err, res) {
+					callback(res);
+				});
+			});
+		}
 	});
 }
 
@@ -46,6 +56,8 @@ function getCommonCredits( credits_a, credits_b, callback){
 	ret['movie_a'] = credits_a['id'];
 	ret['movie_b'] = credits_b['id'];
 	ret['credits'] = [];
+
+	try{
 
 	for( idx in credits_a['cast'] ) {	
 		hash[credits_a['cast'][idx]['id']] = 
@@ -87,10 +99,52 @@ function getCommonCredits( credits_a, credits_b, callback){
 			ret['credits'].push(hash[credits_b['crew'][idx]['id']]);
 		}
 	}
+	}
+
+	catch(e) {
+		console.log(e.stack);
+	}
 
 	callback( ret );
 }
 
+function getNames( query_string, callback )
+{
+	names = [];
+	mdb.searchMulti({ query: query_string}, function(err, res) {
+		if(res) {
+			names = res['results'].slice(0,5);
+			callback(names);
+		}
+	});
+}
+
+function formatForTypeahead( items, callback ) {
+
+	formatted_items = [];
+	items.forEach( function(item) {
+	var year = "";
+	try{
+		if( ('first_air_date' in item) && (item['first_air_date'] != null) ) 
+			year = item['first_air_date'].substring(0,4);
+		else if ( ('release_date' in item) && (item['release_date'] != null))	
+			year = item['release_date'].substring(0,4);
+	}
+	catch(e) {
+		console.log( "Exception for Item: " + item["name"] );
+		console.log(e.stack);
+	}
+	formatted_item =  {	"id": item['id'],
+						"name": item['name']? item['name']: item['title'],
+   						"type": item['media_type'],
+						"year": year
+	}
+	formatted_items.push(formatted_item);
+	//media_type can be many others too.
+
+	});
+	callback(formatted_items);
+}
 
 app.get('/:movie_a/feelslike/:movie_b', function(req, res) {
 
@@ -98,4 +152,13 @@ app.get('/:movie_a/feelslike/:movie_b', function(req, res) {
 		res.send(feels);
 	});
 });
+
+app.get('/search', function(req, res) {
+	getNames(req.query.q, function(names) {
+		formatForTypeahead( names, function( formatted_names) {
+			res.send(formatted_names);
+		});
+	});
+});
+
 app.use(express.static('public'));

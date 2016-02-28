@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 var MainBox = React.createClass({
 	handleFeelsSubmit: function(movies) {
 		$.ajax({
@@ -37,11 +40,12 @@ var QuestionBox = React.createClass({
 		this.props.onFeelsSubmit({a: movie_a, b: movie_b});
 		return;
 	},
+
 	render: function() {
 		return(
 			<div className="questionBox">
-			<div><input type="text" ref="movie_a" /> {" Feels Like "} <input type="text" ref="movie_b" /> </div>
-			<input type="submit" value="Why?"  onClick={this.submitFeels} />
+			Why Does <input className="type-movies" ref="movie_a" />  {" Feel Like "} <input className="type-movies" ref="movie_b" />
+			<input type="submit" value="?"  onClick={this.submitFeels} />
 			</div>
 			);
 	}
@@ -51,7 +55,7 @@ var ResultBox = React.createClass({
 	render: function() {
 		var resultRows = this.props.data['credits'].map(function (person, index) {
 			return (
-				<div key={index}>
+				<div className="credit" key={index}>
 					<h2>{person["name"]}</h2>
 					<div>{person["credits_a"]["role"]} {","} {person["credits_b"]["role"]}</div>
 				</div>
