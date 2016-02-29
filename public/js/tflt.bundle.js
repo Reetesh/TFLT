@@ -26988,11 +26988,11 @@ var ResultBox = _react2.default.createClass({
 				_react2.default.createElement(
 					'div',
 					null,
-					person["credits_a"]["role"],
+					person["credits_a"]["role"].toString(),
 					' ',
-					",",
+					"||",
 					' ',
-					person["credits_b"]["role"]
+					person["credits_b"]["role"].toString()
 				)
 			);
 		});

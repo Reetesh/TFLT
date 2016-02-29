@@ -59,7 +59,7 @@ var ResultBox = React.createClass({
 			return (
 				<div className="credit" key={index}>
 					<h2>{person["name"]}</h2>
-					<div>{person["credits_a"]["role"]} {","} {person["credits_b"]["role"]}</div>
+					<div>{person["credits_a"]["role"].toString()} {"||"} {person["credits_b"]["role"].toString()}</div>
 				</div>
 				);
 		});

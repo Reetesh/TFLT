@@ -13,20 +13,20 @@ var server = app.listen(3000, config.appHost,  function () {
 });
 
 function getCredits(movie_name, callback) {
-	mdb.searchMovie({query: movie_name}, function(err, res) {
+	mdb.searchMulti({query: movie_name}, function(err, res) {
 		//assuming that the top result of API is what we want.
-		if( res ) {
+		if( res['results'][0]['media_type'] == 'movie' ) {
 			movie = res['results'][0];
 			mdb.movieCredits({id: movie['id']}, function(err, res) {
-				callback(res);
+				var ret = { 'type': 'movie', 'credits': res};
+				callback(ret);
 			});
 		}
 		else { //TV
-			mdb.searchTV({query: movie_name}, function(err, res) {
-				tv = res['results'][0];
-				mdb.tvCredits({id: tv['id']}, function(err, res) {
-					callback(res);
-				});
+			tv = res['results'][0];
+			mdb.tvCredits({id: tv['id']}, function(err, res) {
+				var ret = { 'type': 'tv', 'credits':res};
+				callback(ret);
 			});
 		}
 	});
@@ -51,60 +51,62 @@ function getFeels( movie_a, movie_b, callback) {
 function getCommonCredits( credits_a, credits_b, callback){
 
 	var hash = new Object();
+	var ret_hash = {};
 
 	var ret = {};
-	ret['movie_a'] = credits_a['id'];
-	ret['movie_b'] = credits_b['id'];
+	ret['movie_a'] = credits_a['credits']['id'];
+	ret['movie_b'] = credits_b['credits']['id'];
 	ret['credits'] = [];
 
+	
+	var castcrew = { 'cast_a': credits_a['credits']['cast'], 'crew_a' : credits_a['credits']['crew'],
+					 'cast_b': credits_b['credits']['cast'], 'crew_b' : credits_b['credits']['crew'] };
 	try{
 
-	for( idx in credits_a['cast'] ) {	
-		hash[credits_a['cast'][idx]['id']] = 
-			{	"id": credits_a['cast'][idx]['id'],
-				"name": credits_a['cast'][idx]['name'],
-				"credits_a": {
-					"role": credits_a['cast'][idx]['character'],
-					"department": "Cast" 
-				}
-			};
-	}
-	for( idx in credits_a['crew'] ) {
-		hash[credits_a['crew'][idx]['id']] = 
-			{	"id": credits_a['crew'][idx]['id'],
-				"name": credits_a['crew'][idx]['name'],
-				"credits_a": {
-				   "role": credits_a['crew'][idx]['job'],
-				   "department": credits_a['crew'][idx]['department']
-				}
-			};
-	}
+	for( credits_type in castcrew ) {
+		for( idx in castcrew[credits_type] ) {
+			var credits_column, credits_label, credits_id;
+			
+			if( credits_type.includes('_a') )
+				credits_column = "credits_a";
+			else
+				credits_column = "credits_b";
 
-	//now find matching in credits_b
-	for( idx in credits_b['cast'] ) {
-		if( hash.hasOwnProperty( credits_b['cast'][idx]['id'] )) {
-			hash[credits_b['cast'][idx]['id']]["credits_b"] = 
-			   	{	"role": credits_b['cast'][idx]['character'],
-					"department": "Cast"
-			   	};
-			ret['credits'].push(hash[credits_b['cast'][idx]['id']]);
-		}
-	}
-	for( idx in credits_b['crew']) {
-		if( hash.hasOwnProperty( credits_b['crew'][idx]['id'] )) {
-			hash[credits_b['crew'][idx]['id']]["credits_b"] =
-			   	{	"role": credits_b['crew'][idx]['job'],
-					"department": credits_b['crew'][idx]['department']
-				};
-			ret['credits'].push(hash[credits_b['crew'][idx]['id']]);
+			if( credits_type.includes('cast'))
+				credits_label = "character";
+			else
+				credits_label = "job";
+
+			credits_id = castcrew[credits_type][idx]['id'];
+
+			if( hash.hasOwnProperty( credits_id ) ){	
+				//include department if necessary in the future
+				if( hash[credits_id].hasOwnProperty( credits_column ) ) {
+					hash[credits_id][credits_column]['role'].push(castcrew[credits_type][idx][credits_label]);
+				}
+				else
+					hash[credits_id][credits_column] = { "role" : [castcrew[credits_type][idx][credits_label]] }; 
+
+				if( hash[credits_id].hasOwnProperty('credits_a') && hash[credits_id].hasOwnProperty('credits_b') )
+					ret_hash[credits_id] = hash[credits_id];
+			}
+			else {
+				hash[credits_id] = 
+				{
+					"id": credits_id,
+					"name": castcrew[credits_type][idx]['name']
+				}
+				hash[credits_id][credits_column] = { 'role' : [castcrew[credits_type][idx][credits_label]] };
+			}
 		}
 	}
 	}
-
 	catch(e) {
 		console.log(e.stack);
 	}
 
+	for(key in ret_hash) 
+		ret['credits'].push(ret_hash[key]);
 	callback( ret );
 }
 
