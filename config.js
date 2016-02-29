@@ -3,4 +3,4 @@ exports.appHost='localhost';
 //enter the route at which the app will be hosted.
 //include trailing slash /
 //ex: route = '/tflt/' if hosted at http://my.domain.com/tflt/
-exports.route='/';
+exports.route='/tflt/';
