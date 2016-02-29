@@ -1,11 +1,14 @@
 import Handlebars from 'handlebars';
+
+var config = require('../../config');
+
 var movieNames = new Bloodhound ({
 	queryTokenizer: Bloodhound.tokenizers.whitespace,
 	datumTokenizer: function(d) {
 		return Bloodhound.tokenizers.whitespace(d.name);
 	},
 	remote: {
-		url: "/search?q=%NAME",
+		url: config.route+"search?q=%NAME",
 		wildcard: "%NAME"
 	}
 });

@@ -123,7 +123,7 @@ function formatForTypeahead( items, callback ) {
 
 	formatted_items = [];
 	items.forEach( function(item) {
-	var year = "";
+	var year = "-";
 	try{
 		if( ('first_air_date' in item) && (item['first_air_date'] != null) ) 
 			year = item['first_air_date'].substring(0,4);

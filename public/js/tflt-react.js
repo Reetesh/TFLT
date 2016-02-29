@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+var config = require('../../config');
+
 var MainBox = React.createClass({
 	handleFeelsSubmit: function(movies) {
 		$.ajax({
-			url: "/"+movies['a']+"/feelslike/"+movies['b'],
+			url: config.route+movies['a']+"/feelslike/"+movies['b'],
 			type: 'GET',
 			success: function(data) {
 				this.setState({data: data});
