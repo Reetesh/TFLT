@@ -3,7 +3,8 @@ var config = require("./config");
 var express = require("express");
 var app = express();
 
-var mdb = require('moviedb')(config.apiKey);
+var { MovieDb } = require('moviedb-promise');
+var mdb = new MovieDb(config.apiKey);
 
 var server = app.listen(3000, config.appHost,  function () {
 	var host = server.address().address;
@@ -13,18 +14,18 @@ var server = app.listen(3000, config.appHost,  function () {
 });
 
 function getCredits(movie_name, callback) {
-	mdb.searchMulti({query: movie_name}, function(err, res) {
+	mdb.searchMulti({query: movie_name}).then( res => {
 		//assuming that the top result of API is what we want.
 		if( res['results'][0]['media_type'] == 'movie' ) {
 			movie = res['results'][0];
-			mdb.movieCredits({id: movie['id']}, function(err, res) {
+			mdb.movieCredits({id: movie['id']}).then( res => {
 				var ret = { 'type': 'movie', 'credits': res};
 				callback(ret);
 			});
 		}
 		else { //TV
 			tv = res['results'][0];
-			mdb.tvCredits({id: tv['id']}, function(err, res) {
+			mdb.tvCredits({id: tv['id']}).then( res => {
 				var ret = { 'type': 'tv', 'credits':res};
 				callback(ret);
 			});
@@ -113,7 +114,7 @@ function getCommonCredits( credits_a, credits_b, callback){
 function getNames( query_string, callback )
 {
 	names = [];
-	mdb.searchMulti({ query: query_string}, function(err, res) {
+	mdb.searchMulti({ query: query_string}).then( res => {
 		if(res) {
 			names = res['results'].slice(0,5);
 			callback(names);
